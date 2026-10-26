@@ -31,7 +31,12 @@ Options:
   -v, --version   Show the version
 
 Keys come from the config file or from these environment variables:
-${PROVIDER_IDS.map((id) => `  ${ENV_KEYS[id].padEnd(22)} ${ADAPTERS[id].name}`).join('\n')}
+${PROVIDER_IDS.map((id) => `  ${ENV_KEYS[id].padEnd(25)} ${ADAPTERS[id].name}`).join('\n')}
+
+Other environment variables:
+  TURBOBULLS_BRIDGE_CONFIG  Config file to read
+  TURBOBULLS_BRIDGE_HOST    Same as --host (the container image sets 0.0.0.0)
+  TURBOBULLS_BRIDGE_PORT    Same as --port
 `
 
 export interface CliOptions {
@@ -64,14 +69,14 @@ export function parseCli(argv: string[], env: Record<string, string | undefined>
     if (first === 'init' || first === 'test' || first === 'start') command = first
     else throw new Error(`Unknown command "${String(first).slice(0, 32)}". Run turbobulls-bridge --help.`)
   }
-  const portText = values.port ?? env.BRIDGE_PORT ?? String(DEFAULT_PORT)
+  const portText = values.port ?? env.TURBOBULLS_BRIDGE_PORT ?? String(DEFAULT_PORT)
   const port = Number(portText)
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('The port must be a whole number from 1 to 65535.')
   return {
     command,
     dev: values.dev === true,
     port,
-    host: values.host ?? env.BRIDGE_HOST ?? '127.0.0.1',
+    host: values.host ?? env.TURBOBULLS_BRIDGE_HOST ?? '127.0.0.1',
     config: values.config,
   }
 }
@@ -92,7 +97,10 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
   const allowedOrigins = opts.dev ? [APP_ORIGIN, DEV_ORIGIN] : [APP_ORIGIN]
   if (opts.port !== DEFAULT_PORT) log.warn(`Warning: the Turbobulls app only looks for the bridge on port ${DEFAULT_PORT}.`)
   if (!['127.0.0.1', 'localhost', '::1'].includes(opts.host)) {
-    log.warn(`Warning: listening on ${opts.host} lets other machines reach the bridge. Do this only inside a container.`)
+    log.warn(
+      `Listening on ${opts.host}. Outside a container this lets other machines use your keys. In a container, ` +
+        `publish the port to this computer only: -p 127.0.0.1:${opts.port}:${opts.port}`,
+    )
   }
   const server = createBridgeServer({
     port: opts.port,

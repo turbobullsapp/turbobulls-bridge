@@ -17,7 +17,9 @@ describe('parseCli', () => {
   })
 
   it('takes host and port from the environment, as the container sets them', () => {
-    expect(parseCli([], { BRIDGE_HOST: '0.0.0.0', BRIDGE_PORT: '47821' })).toMatchObject({ host: '0.0.0.0', port: 47821 })
+    expect(parseCli([], { TURBOBULLS_BRIDGE_HOST: '0.0.0.0', TURBOBULLS_BRIDGE_PORT: '47821' })).toMatchObject({ host: '0.0.0.0', port: 47821 })
+    // Generic names do nothing: a stray BRIDGE_HOST in a shell profile must not expose the bridge.
+    expect(parseCli([], { BRIDGE_HOST: '0.0.0.0', BRIDGE_PORT: '1' })).toMatchObject({ host: '127.0.0.1', port: 47821 })
   })
 
   it('refuses what it cannot use', () => {
@@ -35,7 +37,7 @@ describe('package', () => {
   })
 
   it('names every key variable in the help', () => {
-    for (const name of ['EODHD_API_KEY', 'TWELVEDATA_API_KEY', 'ALPHAVANTAGE_API_KEY', 'FINNHUB_API_KEY']) {
+    for (const name of ['EODHD_API_KEY', 'TWELVEDATA_API_KEY', 'ALPHAVANTAGE_API_KEY', 'FINNHUB_API_KEY', 'TURBOBULLS_BRIDGE_HOST', 'TURBOBULLS_BRIDGE_PORT', 'TURBOBULLS_BRIDGE_CONFIG']) {
       expect(HELP).toContain(name)
     }
   })

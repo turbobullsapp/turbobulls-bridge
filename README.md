@@ -41,11 +41,12 @@ What you can price depends on your plan with the provider, not on the bridge.
 1. Create the config file for your keys (it is made readable only by you):
 
    ```bash
-   npx turbobulls-bridge init
+   npx turbobulls-bridge@0.1.0 init
    ```
 
 2. Open the file it names (`~/.config/turbobulls-bridge/config.json` on macOS and Linux,
-   `%APPDATA%\turbobulls-bridge\config.json` on Windows) and paste your key next to your provider:
+   `%LOCALAPPDATA%\turbobulls-bridge\config.json` on Windows) and paste your key next to your
+   provider:
 
    ```json
    { "keys": { "eodhd": "your-key-here", "twelvedata": "", "alphavantage": "", "finnhub": "" } }
@@ -54,21 +55,29 @@ What you can price depends on your plan with the provider, not on the bridge.
 3. Check the key, then start the bridge and leave it running while you use Turbobulls:
 
    ```bash
-   npx turbobulls-bridge test
-   npx turbobulls-bridge
+   npx turbobulls-bridge@0.1.0 test
+   npx turbobulls-bridge@0.1.0
    ```
 
-You can set keys as environment variables instead of the file (`EODHD_API_KEY=... npx
-turbobulls-bridge`); a variable wins over the file. After editing the file, restart the bridge.
+Always name the version (`@0.1.0`), so `npx` runs exactly the release you chose. You can set keys
+as environment variables instead of the file (`EODHD_API_KEY`, `TWELVEDATA_API_KEY`,
+`ALPHAVANTAGE_API_KEY`, `FINNHUB_API_KEY`); a variable wins over the file. After editing the file,
+restart the bridge.
 
 ### With Docker
 
+Put your keys in a file only you can read, one per line (`EODHD_API_KEY=your-key`), then:
+
 ```bash
-docker run --rm -p 127.0.0.1:47821:47821 -e EODHD_API_KEY=your-key ghcr.io/turbobullsapp/turbobulls-bridge
+chmod 600 ~/.config/turbobulls-bridge/bridge.env
+docker run --rm -p 127.0.0.1:47821:47821 --env-file ~/.config/turbobulls-bridge/bridge.env ghcr.io/turbobullsapp/turbobulls-bridge:0.1.0
 ```
 
-Keep `127.0.0.1:` in front of the port, so only your computer can reach it, and keep the port
-47821: the app only looks there.
+- Keep `127.0.0.1:` in front of the port. Without it (or with `-P`), Docker opens the bridge to
+  your whole network, past most firewalls, and anyone on it could use your keys.
+- Keep the port 47821: the app only looks there.
+- Do not write a key on the `docker run` command line (`-e EODHD_API_KEY=...`): other users of
+  the computer can read command lines, and your shell keeps them in its history.
 
 ## Use it in Turbobulls
 
@@ -91,6 +100,10 @@ turbobulls-bridge init       Create the config file for your keys
 turbobulls-bridge test       Check each key you set with one small request
 turbobulls-bridge --help     Show every option
 ```
+
+Environment variables besides the keys: `TURBOBULLS_BRIDGE_CONFIG` (config file to read),
+`TURBOBULLS_BRIDGE_HOST` and `TURBOBULLS_BRIDGE_PORT` (the container image sets these; leave them
+alone otherwise).
 
 ## Troubleshooting
 

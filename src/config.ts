@@ -24,11 +24,14 @@ export interface LoadedKeys {
 
 type Env = Record<string, string | undefined>
 
-/** Where the config file lives: ~/.config/turbobulls-bridge/config.json, or %APPDATA% on Windows. */
+/**
+ * Where the config file lives: ~/.config/turbobulls-bridge/config.json, or %LOCALAPPDATA% on
+ * Windows (the local profile folder, which roaming profiles do not copy to a server).
+ */
 export function defaultConfigPath(env: Env = process.env, platform: NodeJS.Platform = process.platform, home: string = homedir()): string {
   const override = env.TURBOBULLS_BRIDGE_CONFIG?.trim()
   if (override) return override
-  if (platform === 'win32') return join(env.APPDATA ?? join(home, 'AppData', 'Roaming'), 'turbobulls-bridge', 'config.json')
+  if (platform === 'win32') return join(env.LOCALAPPDATA ?? join(home, 'AppData', 'Local'), 'turbobulls-bridge', 'config.json')
   return join(env.XDG_CONFIG_HOME ?? join(home, '.config'), 'turbobulls-bridge', 'config.json')
 }
 
@@ -78,7 +81,8 @@ export async function loadKeys(opts: { env?: Env; path?: string; platform?: Node
     } else if (fileKeys) {
       for (const [name, value] of Object.entries(fileKeys)) {
         if (!isProviderId(name)) {
-          warnings.push(`${path} names an unknown provider "${name.slice(0, 32)}". Known: ${PROVIDER_IDS.join(', ')}.`)
+          // The name is not repeated: a key pasted in the wrong place would land in the terminal.
+          warnings.push(`${path} has an entry for an unknown provider. Known: ${PROVIDER_IDS.join(', ')}.`)
           continue
         }
         if (typeof value !== 'string') {

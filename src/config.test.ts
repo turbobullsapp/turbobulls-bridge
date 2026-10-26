@@ -17,10 +17,12 @@ afterEach(async () => {
 const posix = process.platform !== 'win32'
 
 describe('defaultConfigPath', () => {
-  it('uses ~/.config, XDG_CONFIG_HOME, %APPDATA% or the override', () => {
+  it('uses ~/.config, XDG_CONFIG_HOME, %LOCALAPPDATA% or the override', () => {
     expect(defaultConfigPath({}, 'darwin', '/Users/me')).toBe('/Users/me/.config/turbobulls-bridge/config.json')
     expect(defaultConfigPath({ XDG_CONFIG_HOME: '/xdg' }, 'linux', '/home/me')).toBe('/xdg/turbobulls-bridge/config.json')
-    expect(defaultConfigPath({ APPDATA: 'C:/Users/me/AppData/Roaming' }, 'win32', 'C:/Users/me')).toContain('turbobulls-bridge')
+    expect(defaultConfigPath({ LOCALAPPDATA: 'C:/Users/me/AppData/Local', APPDATA: 'C:/Users/me/AppData/Roaming' }, 'win32', 'C:/Users/me')).toBe(
+      join('C:/Users/me/AppData/Local', 'turbobulls-bridge', 'config.json'),
+    )
     expect(defaultConfigPath({ TURBOBULLS_BRIDGE_CONFIG: '/etc/tb.json' }, 'linux', '/home/me')).toBe('/etc/tb.json')
   })
 })
@@ -48,6 +50,7 @@ describe('loadKeys', () => {
     expect(loaded.keys).toEqual({})
     expect(loaded.warnings).toHaveLength(2)
     expect(loaded.warnings.join(' ')).not.toContain('secret-1')
+    expect(loaded.warnings.join(' ')).not.toContain('yahoo')
 
     await writeFile(path, '{ "keys": { "eodhd": "secret-2" ', { mode: 0o600 })
     const broken = await loadKeys({ path, env: {} })

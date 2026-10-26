@@ -13,10 +13,11 @@ into an issue, even a revoked one.
 - **It only answers the Turbobulls app.** Every request must carry the `Origin`
   `https://app.turbobulls.com` (or `http://localhost:3000` with `--dev`). Requests from any other
   website, and requests without an `Origin` (how a website could send one blind), are refused.
-- **It cannot be reached through a look-alike address.** Every request must name `127.0.0.1:47821`
-  or `localhost:47821` as its `Host`, which defeats DNS rebinding.
+- **It cannot be reached through a look-alike address.** Every request must name `127.0.0.1:47821`,
+  `localhost:47821` or `[::1]:47821` as its `Host`, which defeats DNS rebinding.
 - **It cannot be used as a proxy.** No request carries a URL. The bridge builds each provider
-  request itself, and only for the four provider APIs it knows.
+  request itself, and only for the four provider APIs it knows. It never follows a redirect, so a
+  key cannot be carried to another host, and it stops reading any answer past a size limit.
 - **Your keys stay on your computer.** They come from environment variables or a config file the
   bridge creates readable only by you, and warns about if others can read it. A key is sent only
   to the provider it belongs to, as a header where the provider accepts one (EODHD, Twelve Data,
@@ -28,8 +29,18 @@ into an issue, even a revoked one.
 
 ## What it cannot protect against
 
-Software already running on your computer with your user's rights can read your config file, the
-same as any other file of yours. Keep your computer and Node.js up to date.
+- **Programs on your computer.** The `Origin` check stops websites, not programs. Any program that
+  can reach this computer's `127.0.0.1` (another user account, a container) can send the app's
+  `Origin` and run searches and price requests with your keys. A program that takes port 47821
+  before the bridge starts could pretend to be it; the app treats every answer as untrusted data,
+  but would show that program's prices. Run the bridge on a computer only you use.
+- **Your own files.** Software running with your user's rights can read your config file, the same
+  as any other file of yours.
+- **Windows permissions.** On Windows the config file lives in your local profile folder, which
+  Windows keeps private to your account by default; the bridge cannot check its permissions the way
+  it does on macOS and Linux.
+
+Keep your computer and Node.js up to date.
 
 ## Releases
 
