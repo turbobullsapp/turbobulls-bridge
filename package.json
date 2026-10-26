@@ -1,0 +1,56 @@
+{
+  "name": "turbobulls-bridge",
+  "version": "0.1.0",
+  "description": "Fetch daily prices from your own market-data provider, with your own API key, on your own computer, for Turbobulls.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "turbobulls-bridge": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "PROTOCOL.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/cli.js",
+    "dev": "tsc -p tsconfig.build.json && node dist/cli.js --dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "prepublishOnly": "pnpm check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turbobullsapp/turbobulls-bridge.git"
+  },
+  "homepage": "https://github.com/turbobullsapp/turbobulls-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/turbobullsapp/turbobulls-bridge/issues"
+  },
+  "keywords": [
+    "turbobulls",
+    "portfolio",
+    "market-data",
+    "eodhd",
+    "twelvedata",
+    "alphavantage",
+    "finnhub"
+  ],
+  "packageManager": "pnpm@10.30.3",
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.5",
+    "eslint": "10.13.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5"
+  }
+}
