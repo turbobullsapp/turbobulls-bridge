@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/icon.png" width="96" height="96" alt="Turbobulls Connector app">
+  <img src="docs/images/icon.png" width="96" height="96" alt="Turbobulls Connector: app for your computer">
 </p>
 
-<h1 align="center">Turbobulls Connector app</h1>
+<h1 align="center">Turbobulls Connector: app for your computer</h1>
 
 <p align="center">
   <strong>Prices from your own market-data subscription, for <a href="https://turbobulls.com">Turbobulls</a>.</strong><br>
