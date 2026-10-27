@@ -14,16 +14,16 @@ import { ADAPTERS } from './shared/providers/registry.js'
 import type { FetchLike } from './shared/providers/types.js'
 import { VERSION } from './version.js'
 
-export const HELP = `Turbobulls bridge ${VERSION}
+export const HELP = `Turbobulls Connector app ${VERSION}
 
 Fetches daily prices from your own market-data provider, with your own API key,
 on this computer, for the Turbobulls app. Your key never leaves this computer
 except to reach the provider it belongs to.
 
 Usage:
-  turbobulls-bridge            Start the bridge (leave it running while you use Turbobulls)
+  turbobulls-bridge            Start the Connector app (leave it running while you use Turbobulls)
   turbobulls-bridge init       Create the config file for your keys
-  turbobulls-bridge test       Check each key you set with one small request
+  turbobulls-bridge test       Check each key, and each source of your own, with one small request
 
 Options:
   --dev           Also answer the app's local development server (${DEV_ORIGIN})
@@ -93,7 +93,7 @@ function describeKeys(loaded: LoadedKeys): string {
   const set = PROVIDER_IDS.filter((id) => loaded.keys[id])
   const custom = loaded.customSources.map((s) => s.name)
   if (set.length === 0 && custom.length === 0) {
-    return `No keys yet. Run "turbobulls-bridge init", add a key to ${loaded.path}, then start the bridge again.`
+    return `No keys yet. Run "turbobulls-bridge init", add a key to ${loaded.path}, then start the Connector app again.`
   }
   const lines: string[] = []
   if (set.length > 0) {
@@ -120,7 +120,7 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
   const loaded = await loadKeys(opts.config ? { path: opts.config } : {})
   for (const w of loaded.warnings) log.warn(`Warning: ${w}`)
   const allowedOrigins = opts.dev ? [APP_ORIGIN, DEV_ORIGIN] : [APP_ORIGIN]
-  if (opts.port !== DEFAULT_PORT) log.warn(`Warning: the Turbobulls app only looks for the bridge on port ${DEFAULT_PORT}.`)
+  if (opts.port !== DEFAULT_PORT) log.warn(`Warning: the Turbobulls app only looks for the Connector app on port ${DEFAULT_PORT}.`)
   if (!['127.0.0.1', 'localhost', '::1'].includes(opts.host)) {
     log.warn(
       `Listening on ${opts.host}. Outside a container this lets other machines use your keys. In a container, ` +
@@ -136,17 +136,19 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
   server.on('error', (e: NodeJS.ErrnoException) => {
     log.error(
       e.code === 'EADDRINUSE'
-        ? `Port ${opts.port} is already in use. Is the bridge already running in another window?`
-        : `The bridge could not start: ${e.message}`,
+        ? `Port ${opts.port} is already in use. Is the Connector app already running in another window?`
+        : `The Connector app could not start: ${e.message}`,
     )
     process.exit(1)
   })
   server.listen(opts.port, opts.host, () => {
-    log.info(`Turbobulls bridge ${VERSION}`)
+    log.info(`Turbobulls Connector app ${VERSION}`)
     log.info(describeKeys(loaded))
     log.info(`Answering ${allowedOrigins.join(' and ')} on http://127.0.0.1:${opts.port}`)
     log.info('Leave this running while you use Turbobulls. Press Ctrl+C to stop.')
-    log.info(`Next: in Turbobulls, turn on the bridge in Settings > Data sources, then add an asset priced by your provider: ${linkAssetUrl(opts.dev)}`)
+    log.info(
+      `Next: in Turbobulls, open Settings > Custom data sources and turn on "Use the Connector app on this device", then add an asset priced by your provider: ${linkAssetUrl(opts.dev)}`,
+    )
   })
   const stop = () => server.close(() => process.exit(0))
   process.once('SIGINT', stop)
@@ -235,7 +237,7 @@ function isEntryPoint(): boolean {
 
 if (isEntryPoint()) {
   main(process.argv.slice(2)).catch((e: unknown) => {
-    consoleLogger.error(e instanceof Error ? e.message : 'The bridge stopped on an unexpected error.')
+    consoleLogger.error(e instanceof Error ? e.message : 'The Connector app stopped on an unexpected error.')
     process.exit(1)
   })
 }

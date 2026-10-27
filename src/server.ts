@@ -89,12 +89,12 @@ async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeSer
   res.setHeader('Vary', 'Origin')
 
   if (!isAllowedHost(req.headers.host, opts.port)) {
-    send(res, 403, refusal('BAD_REQUEST', 'The bridge only answers requests sent to 127.0.0.1.'))
+    send(res, 403, refusal('BAD_REQUEST', 'The Connector app only answers requests sent to 127.0.0.1.'))
     return logRefusal(line(403, 'host refused'))
   }
   const origin = req.headers.origin
   if (typeof origin !== 'string' || !opts.allowedOrigins.includes(origin)) {
-    send(res, 403, refusal('BAD_REQUEST', 'The bridge only answers the Turbobulls app.'))
+    send(res, 403, refusal('BAD_REQUEST', 'The Connector app only answers the Turbobulls app.'))
     return logRefusal(line(403, 'origin refused'))
   }
   res.setHeader('Access-Control-Allow-Origin', origin)
@@ -111,7 +111,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeSer
   }
   if (method !== 'GET') {
     res.setHeader('Allow', 'GET, OPTIONS')
-    send(res, 405, refusal('BAD_REQUEST', 'The bridge only answers GET requests.'))
+    send(res, 405, refusal('BAD_REQUEST', 'The Connector app only answers GET requests.'))
     return done(405, 'method refused')
   }
   if (url.length > MAX_URL_LENGTH) {
@@ -120,7 +120,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeSer
   }
   const op = PATHS[path]
   if (!op) {
-    send(res, 404, refusal('UNSUPPORTED_OPERATION', 'The bridge has no such path.'))
+    send(res, 404, refusal('UNSUPPORTED_OPERATION', 'The Connector app has no such path.'))
     return done(404, 'unknown path')
   }
 
@@ -142,7 +142,7 @@ export function createBridgeServer(opts: BridgeServerOptions): Server {
   const logRefusal = createRefusalLog(opts.logger)
   return createServer((req, res) => {
     handle(req, res, opts, logRefusal).catch(() => {
-      if (!res.headersSent) send(res, 500, refusal('PROVIDER_ERROR', 'The bridge could not answer.'))
+      if (!res.headersSent) send(res, 500, refusal('PROVIDER_ERROR', 'The Connector app could not answer.'))
       else res.end()
     })
   })
