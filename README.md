@@ -84,6 +84,10 @@ your other devices (your phone included) receive them with the app's normal sync
 
 What you can price depends on your plan with the provider.
 
+EODHD, Twelve Data, Alpha Vantage and Finnhub are named only to show which services the Connector
+can ask with your own key. Turbobulls is not affiliated with or endorsed by any of them, and your use
+of each one is under your own plan and its terms.
+
 ## Quick start
 
 1. **Create the config file** for your keys. It is made readable only by you:
