@@ -14,7 +14,8 @@ does the same job with nothing to keep running.
 ## What it can and cannot do
 
 - It only reaches your provider's API (`eodhd.com`, `api.twelvedata.com`, `www.alphavantage.co`,
-  `finnhub.io`), and only when the Turbobulls app asks for a search or for prices.
+  `finnhub.io`) and the custom sources you add yourself, and only when the Turbobulls app asks for
+  a search or for prices.
 - It only listens on `127.0.0.1`, so nothing outside your computer can reach it.
 - It only answers `https://app.turbobulls.com`. Any other website, and any request without the
   app's address, is refused.
@@ -91,6 +92,67 @@ your other devices (your phone included) receive them through the app's normal e
 
 Browsers: Chrome, Edge and Firefox. Safari does not let a secure website talk to a program on your
 computer, so the bridge does not work there.
+
+## Custom sources
+
+Prices that none of the four providers carry (a pension fund's daily price, a small exchange, a
+spreadsheet you keep yourself) can come from any web address that answers JSON or CSV. Add a source
+to the `sources` list in the config file; the app shows it as a data provider without search, where
+you type the symbol.
+
+```json
+{
+  "keys": { "eodhd": "" },
+  "sources": [
+    {
+      "id": "ecbusd",
+      "name": "ECB euro in dollars",
+      "url": "https://data-api.ecb.europa.eu/service/data/EXR/D.{SYMBOL}.EUR.SP00.A?format=csvdata&startPeriod={FROM}&endPeriod={TO}",
+      "format": "csv",
+      "csv": { "date": "TIME_PERIOD", "close": "OBS_VALUE" },
+      "currency": "USD",
+      "symbolHint": "Currency code, like USD",
+      "testSymbol": "USD"
+    },
+    {
+      "id": "mypension",
+      "name": "My pension fund",
+      "url": "https://api.example.com/funds/{SYMBOL}/prices?from={FROM}&to={TO}",
+      "format": "json",
+      "json": { "items": "data.prices", "date": "day", "close": "nav" },
+      "currency": "EUR",
+      "headers": { "X-Api-Key": "{KEY}" },
+      "key": "your-key-for-this-source",
+      "testSymbol": "RO1234"
+    }
+  ]
+}
+```
+
+| Setting | What it is |
+|---|---|
+| `id` | 2 to 32 lower-case letters and digits, starting with a letter |
+| `name` | What the app shows, up to 40 characters |
+| `url` | An `https://` address. Placeholders: `{SYMBOL}`, `{FROM}` and `{TO}` (YYYY-MM-DD), `{FROM_UNIX}` and `{TO_UNIX}` (seconds), `{KEY}`. None may sit in the host name. |
+| `format` | `json` or `csv` |
+| `json` | `items`: dot path to the list (empty for the whole answer); `date`: dot path to the date in each item (leave it out when the list is an object keyed by date); `close`: dot path to the price |
+| `csv` | `date` and `close`: column names from the header row, or column numbers from 1; `delimiter`: `,` (default), `;` or a tab |
+| `dateFormat` | `YYYY-MM-DD` (default), `DD/MM/YYYY`, `MM/DD/YYYY`, `DD.MM.YYYY`, `YYYYMMDD`, `unix`, `unixms` |
+| `decimal` | `.` (default) or `,` when prices are written like `1.234,56` |
+| `currency` | Three letters (`EUR`), or `GBp` / `GBX` for pence: prices are then divided by 100 |
+| `headers` | Up to 5 extra request headers; a value can hold `{KEY}` |
+| `key` | The key for this source, used where the address or a header says `{KEY}` |
+| `symbolHint` | Label for the app's symbol box, like "Fund code" |
+| `testSymbol` | A symbol `turbobulls-bridge test` asks for, to check the source |
+
+The JSON list can be a list of items (`[{ "day": ..., "nav": ... }]`), an object keyed by date
+(`{ "2026-10-23": { "USD": 1.12 } }`), or two parallel lists of dates and prices
+(`{ "t": [...], "c": [...] }`, with `date` and `close` pointing at them). Run
+`turbobulls-bridge test` after adding a source: it fetches the last 30 days and shows what it read,
+or why nothing matched.
+
+Use only sources whose terms allow this use. The bridge follows redirects only for sources that use
+no key, so a key never travels anywhere but the address you wrote.
 
 ## Commands
 

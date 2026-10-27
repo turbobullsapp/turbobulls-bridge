@@ -16,8 +16,11 @@ into an issue, even a revoked one.
 - **It cannot be reached through a look-alike address.** Every request must name `127.0.0.1:47821`,
   `localhost:47821` or `[::1]:47821` as its `Host`, which defeats DNS rebinding.
 - **It cannot be used as a proxy.** No request carries a URL. The bridge builds each provider
-  request itself, and only for the four provider APIs it knows. It never follows a redirect, so a
-  key cannot be carried to another host, and it stops reading any answer past a size limit.
+  request itself, for the four provider APIs it knows and the custom sources you wrote into its
+  config file; the app can only name a source, never add one or change its address. A symbol is
+  encoded and can never change the host. Redirects are never followed for a request that carries a
+  key, so a key cannot be carried to another host, and the bridge stops reading any answer past a
+  size limit. No request ever sends cookies.
 - **Your keys stay on your computer.** They come from environment variables or a config file the
   bridge creates readable only by you, and warns about if others can read it. A key is sent only
   to the provider it belongs to, as a header where the provider accepts one (EODHD, Twelve Data,

@@ -2,10 +2,12 @@
 import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
-import { defaultConfigPath, ENV_KEYS, initConfig, loadKeys, type LoadedKeys } from './config.js'
+import { defaultConfigPath, ENV_KEYS, initConfig, keyFor, loadKeys, type LoadedKeys } from './config.js'
 import { consoleLogger, type Logger } from './log.js'
 import { APP_ORIGIN, createBridgeServer, DEFAULT_PORT, DEV_ORIGIN } from './server.js'
-import { dispatch } from './shared/dispatch.js'
+import { usesSymbol } from './shared/custom/definition.js'
+import { dispatch, type DispatchDeps } from './shared/dispatch.js'
+import { addDays, todayUtc } from './shared/protocol/dates.js'
 import { PROVIDER_IDS } from './shared/protocol/types.js'
 import { ADAPTERS } from './shared/providers/registry.js'
 import type { FetchLike } from './shared/providers/types.js'
@@ -81,12 +83,33 @@ export function parseCli(argv: string[], env: Record<string, string | undefined>
   }
 }
 
+/** Where users go next: the app's entry point for linking an asset to their provider. */
+export function linkAssetUrl(dev: boolean): string {
+  return `${dev ? DEV_ORIGIN : APP_ORIGIN}/link-asset`
+}
+
 function describeKeys(loaded: LoadedKeys): string {
   const set = PROVIDER_IDS.filter((id) => loaded.keys[id])
-  if (set.length === 0) {
+  const custom = loaded.customSources.map((s) => s.name)
+  if (set.length === 0 && custom.length === 0) {
     return `No keys yet. Run "turbobulls-bridge init", add a key to ${loaded.path}, then start the bridge again.`
   }
-  return `Keys: ${set.map((id) => `${ADAPTERS[id].name} (${loaded.sources[id] === 'env' ? 'environment' : 'config file'})`).join(', ')}`
+  const lines: string[] = []
+  if (set.length > 0) {
+    lines.push(`Keys: ${set.map((id) => `${ADAPTERS[id].name} (${loaded.keySources[id] === 'env' ? 'environment' : 'config file'})`).join(', ')}`)
+  }
+  if (custom.length > 0) lines.push(`Custom sources: ${custom.join(', ')}`)
+  return lines.join('\n')
+}
+
+function depsFor(loaded: LoadedKeys): DispatchDeps {
+  return {
+    connector: 'bridge',
+    version: VERSION,
+    getKey: (id) => keyFor(loaded, id),
+    customSources: () => loaded.customSources,
+    fetch: fetchImpl,
+  }
 }
 
 const fetchImpl: FetchLike = (url, init) => fetch(url, init)
@@ -105,7 +128,7 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
   const server = createBridgeServer({
     port: opts.port,
     allowedOrigins,
-    deps: { version: VERSION, getKey: (id) => loaded.keys[id], fetch: fetchImpl },
+    deps: depsFor(loaded),
     logger: log,
   })
   server.on('error', (e: NodeJS.ErrnoException) => {
@@ -121,6 +144,7 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
     log.info(describeKeys(loaded))
     log.info(`Answering ${allowedOrigins.join(' and ')} on http://127.0.0.1:${opts.port}`)
     log.info('Leave this running while you use Turbobulls. Press Ctrl+C to stop.')
+    log.info(`Next: in Turbobulls, turn on the bridge in Settings > Data sources, then add an asset priced by your provider: ${linkAssetUrl(opts.dev)}`)
   })
   const stop = () => server.close(() => process.exit(0))
   process.once('SIGINT', stop)
@@ -138,16 +162,37 @@ async function test(opts: CliOptions, log: Logger): Promise<void> {
   const loaded = await loadKeys(opts.config ? { path: opts.config } : {})
   for (const w of loaded.warnings) log.warn(`Warning: ${w}`)
   const set = PROVIDER_IDS.filter((id) => loaded.keys[id])
-  if (set.length === 0) {
+  if (set.length === 0 && loaded.customSources.length === 0) {
     log.info(describeKeys(loaded))
     return
   }
+  const deps = depsFor(loaded)
   for (const id of set) {
-    const answer = await dispatch(
-      { v: 1, id: 'test', op: 'search', params: { provider: id, query: 'Apple' } },
-      { connector: 'bridge', version: VERSION, getKey: (p) => loaded.keys[p], fetch: fetchImpl },
-    )
+    const answer = await dispatch({ v: 1, id: 'test', op: 'search', params: { provider: id, query: 'Apple' } }, deps)
     log.info(answer.ok ? `${ADAPTERS[id].name}: the key works.` : `${ADAPTERS[id].name}: ${answer.error.message} (${answer.error.code})`)
+  }
+  const today = todayUtc()
+  for (const source of loaded.customSources) {
+    const symbol = loaded.testSymbols[source.id] ?? (usesSymbol(source) ? undefined : 'TEST')
+    if (!symbol) {
+      log.info(`${source.name}: add "testSymbol" to this source in the config file to test it.`)
+      continue
+    }
+    const answer = await dispatch(
+      { v: 1, id: 'test', op: 'history', params: { provider: source.id, symbol, from: addDays(today, -30), to: today } },
+      deps,
+    )
+    if (!answer.ok) {
+      log.info(`${source.name}: ${answer.error.message} (${answer.error.code})`)
+      continue
+    }
+    const { prices, currency } = answer.result as { prices: { date: string; close: number }[]; currency: string }
+    const last = prices[prices.length - 1]
+    log.info(
+      last
+        ? `${source.name}: ${prices.length} prices in the last 30 days, the latest ${last.close} ${currency} on ${last.date}.`
+        : `${source.name}: it answered, with no prices in the last 30 days.`,
+    )
   }
 }
 

@@ -15,4 +15,9 @@ export default tseslint.config(
     files: ['src/cli.ts', 'src/log.ts'],
     rules: { 'no-console': 'off' },
   },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: { console: 'readonly', process: 'readonly' } },
+    rules: { 'no-console': 'off' },
+  },
 )

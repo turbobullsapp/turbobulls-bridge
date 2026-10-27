@@ -24,8 +24,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
-    "prepublishOnly": "pnpm check"
+    "check": "pnpm check:source && pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "prepublishOnly": "pnpm check",
+    "check:source": "node scripts/check-source.mjs src"
   },
   "repository": {
     "type": "git",
