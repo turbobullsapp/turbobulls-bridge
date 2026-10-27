@@ -151,8 +151,10 @@ The JSON list can be a list of items (`[{ "day": ..., "nav": ... }]`), an object
 `turbobulls-bridge test` after adding a source: it fetches the last 30 days and shows what it read,
 or why nothing matched.
 
-Use only sources whose terms allow this use. The bridge follows redirects only for sources that use
-no key, so a key never travels anywhere but the address you wrote.
+Use only sources whose terms allow this use. The bridge never follows a redirect: give it the
+address the data finally comes from (a link that redirects, such as some spreadsheet "publish to
+the web" links, will not work). So a request, and any key or header in it, goes only to the address
+you wrote. The app sees the names you give your sources, never their addresses or keys.
 
 ## Commands
 

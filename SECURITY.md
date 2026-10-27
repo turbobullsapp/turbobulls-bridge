@@ -18,16 +18,18 @@ into an issue, even a revoked one.
 - **It cannot be used as a proxy.** No request carries a URL. The bridge builds each provider
   request itself, for the four provider APIs it knows and the custom sources you wrote into its
   config file; the app can only name a source, never add one or change its address. A symbol is
-  encoded and can never change the host. Redirects are never followed for a request that carries a
-  key, so a key cannot be carried to another host, and the bridge stops reading any answer past a
-  size limit. No request ever sends cookies.
+  encoded and can never change the host or climb out of the address's path. Redirects are never
+  followed, so a request, and any key or header in it, cannot be carried to another host. The
+  bridge stops reading any answer past a size limit and refuses answers with too many rows. No
+  request ever sends cookies.
 - **Your keys stay on your computer.** They come from environment variables or a config file the
   bridge creates readable only by you, and warns about if others can read it. A key is sent only
   to the provider it belongs to, as a header where the provider accepts one (EODHD, Twelve Data,
   Finnhub). Alpha Vantage only accepts it in the address, which the bridge never logs or reports.
   Keys never appear in log lines, error messages or answers to the app.
 - **Turbobulls learns nothing.** The bridge never contacts Turbobulls. The app talks to it on your
-  computer, and only sends a provider name, a symbol and dates. It never sends portfolio data.
+  computer, and only sends a provider name, a symbol and dates. It never sends portfolio data. The
+  app sees the names you give your own sources, never their addresses or keys.
 - **Its logs hold no symbols.** A log line names the path and the outcome only.
 
 ## What it cannot protect against

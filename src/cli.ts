@@ -173,7 +173,7 @@ async function test(opts: CliOptions, log: Logger): Promise<void> {
   }
   const today = todayUtc()
   for (const source of loaded.customSources) {
-    const symbol = loaded.testSymbols[source.id] ?? (usesSymbol(source) ? undefined : 'TEST')
+    const symbol = (Object.hasOwn(loaded.testSymbols, source.id) ? loaded.testSymbols[source.id] : undefined) ?? (usesSymbol(source) ? undefined : 'TEST')
     if (!symbol) {
       log.info(`${source.name}: add "testSymbol" to this source in the config file to test it.`)
       continue

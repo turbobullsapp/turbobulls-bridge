@@ -2,7 +2,7 @@ import { chmod, mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { parseCustomSource, type CustomSource } from './shared/custom/definition.js'
-import { CUSTOM_ID_RE, LIMITS, PROVIDER_IDS, type ProviderId, type SourceId } from './shared/protocol/types.js'
+import { LIMITS, PROVIDER_IDS, type ProviderId, type SourceId } from './shared/protocol/types.js'
 import { isProviderId, isValidSymbol } from './shared/protocol/validate.js'
 
 /** Environment variable for each provider's key. A variable wins over the config file. */
@@ -142,8 +142,8 @@ function readCustomSources(
   out: Pick<LoadedKeys, 'customSources' | 'customKeys' | 'testSymbols' | 'warnings'>,
 ): void {
   rawSources.forEach((raw, index) => {
-    const rawId = typeof raw === 'object' && raw !== null ? (raw as { id?: unknown }).id : undefined
-    const label = `source ${index + 1}${typeof rawId === 'string' && CUSTOM_ID_RE.test(rawId) ? ` (${rawId})` : ''}`
+    // Named by position only: an id could be a key pasted in the wrong place.
+    const label = `source ${index + 1}`
     if (out.customSources.length >= LIMITS.customSources) {
       out.warnings.push(`${path}, ${label}: skipped, only the first ${LIMITS.customSources} sources are used.`)
       return
