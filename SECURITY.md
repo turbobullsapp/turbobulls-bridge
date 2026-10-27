@@ -6,6 +6,16 @@ Please report security problems privately: use **Report a vulnerability** on thi
 Security tab, or email hello@turbobulls.com. Do not open a public issue. Never paste an API key
 into an issue, even a revoked one.
 
+## Supported versions
+
+Only the latest release gets fixes, security fixes included. Updating is the fix for a problem
+found in an older version.
+
+| Version | Fixes |
+|---|---|
+| 1.x (latest) | Yes |
+| Older | No |
+
 ## What the bridge is designed to guarantee
 
 - **It only listens on your computer.** It binds to `127.0.0.1` unless you pass `--host`, which
@@ -51,5 +61,6 @@ Keep your computer and Node.js up to date.
 
 ## Releases
 
-Releases are built by GitHub Actions from tagged commits. The npm package is published with
-provenance, so you can check it was built from this repository.
+Releases are built by GitHub Actions from tagged commits of `main`, after a maintainer approves
+them, and the npm package and the container image carry a signed record of where they were built.
+[RELEASING.md](RELEASING.md) has the rules and the commands to check a release yourself.
