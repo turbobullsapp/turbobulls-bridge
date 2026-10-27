@@ -1,6 +1,6 @@
 {
   "name": "turbobulls-bridge",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Fetch daily prices from your own market-data provider, with your own API key, on your own computer, for Turbobulls.",
   "license": "MIT",
   "type": "module",

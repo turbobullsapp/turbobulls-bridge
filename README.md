@@ -14,6 +14,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/node-%E2%89%A522-339933.svg" alt="Node.js 22 or newer">
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen.svg" alt="No runtime dependencies">
+  <a href="https://www.npmjs.com/package/turbobulls-bridge"><img src="https://img.shields.io/npm/v/turbobulls-bridge.svg" alt="npm"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/turbobullsapp/turbobulls-bridge"><img src="https://api.scorecard.dev/projects/github.com/turbobullsapp/turbobulls-bridge/badge" alt="OpenSSF Scorecard"></a>
 </p>
 
 <p align="center">
@@ -22,7 +24,8 @@
   <a href="#privacy-and-security">Privacy and security</a> ·
   <a href="docs/custom-sources.md">Your own sources</a> ·
   <a href="#troubleshooting">Troubleshooting</a> ·
-  <a href="#development">Development</a>
+  <a href="#development">Development</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -93,7 +96,7 @@ of each one is under your own plan and its terms.
 1. **Create the config file** for your keys. It is made readable only by you:
 
    ```bash
-   npx turbobulls-bridge@0.1.0 init
+   npx turbobulls-bridge@1.0.0 init
    ```
 
 2. **Add your key.** Open the file it names (`~/.config/turbobulls-bridge/config.json` on macOS and
@@ -107,12 +110,12 @@ of each one is under your own plan and its terms.
 3. **Check it and start it.** Leave it running while you use Turbobulls:
 
    ```bash
-   npx turbobulls-bridge@0.1.0 test
-   npx turbobulls-bridge@0.1.0
+   npx turbobulls-bridge@1.0.0 test
+   npx turbobulls-bridge@1.0.0
    ```
 
 > [!TIP]
-> Always name the version (`@0.1.0`), so `npx` runs exactly the release you chose. Keys can also be
+> Always name the version (`@1.0.0`), so `npx` runs exactly the release you chose. Keys can also be
 > environment variables (`EODHD_API_KEY` and the others above); a variable wins over the file.
 > Restart the Connector app after editing the file.
 
@@ -125,7 +128,7 @@ chmod 600 ~/.config/turbobulls-bridge/bridge.env
 docker run --rm \
   -p 127.0.0.1:47821:47821 \
   --env-file ~/.config/turbobulls-bridge/bridge.env \
-  ghcr.io/turbobullsapp/turbobulls-bridge:0.1.0
+  ghcr.io/turbobullsapp/turbobulls-bridge:1.0.0
 ```
 
 > [!WARNING]
@@ -176,7 +179,7 @@ Every setting, the answer shapes it reads and the rules it keeps are in
 
 ## Commands
 
-With `npx`, write `npx turbobulls-bridge@0.1.0` where these say `turbobulls-bridge`.
+With `npx`, write `npx turbobulls-bridge@1.0.0` where these say `turbobulls-bridge`.
 
 | Command | What it does |
 |---|---|
@@ -257,7 +260,8 @@ pnpm dev          # start the Connector app, also answering http://localhost:300
 
 The provider code in `src/shared/` is identical in the
 [extension](https://github.com/turbobullsapp/turbobulls-extension); a change there is made in both.
-Releases are described in [RELEASING.md](RELEASING.md).
+Releases, and how to check one, are described in [RELEASING.md](RELEASING.md); every change is in
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
