@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Prices from your own market-data subscription, for <a href="https://turbobulls.com">Turbobulls</a>.</strong><br>
-  A small program on your own computer, for Firefox or any browser. Your API key never leaves it.
+  A small program on your own computer, for Firefox or any browser. Your key goes only to your provider, and Turbobulls cannot read your data.
 </p>
 
 <p align="center">
@@ -36,10 +36,18 @@ and for anyone who prefers a program to a browser extension. In Chrome and Edge,
 [Turbobulls Connector extension](https://github.com/turbobullsapp/turbobulls-extension) does the same
 job with nothing to keep running.
 
+> [!NOTE]
+> **Nobody else sees your key or your data.** Your API keys stay on this computer and go only to
+> your providers. Turbobulls never receives them and cannot read your data: the prices, and which
+> assets you price, are saved end-to-end encrypted with the rest of your portfolio. See
+> [who sees what](#who-sees-what) below.
+
 ## Highlights
 
 - **Your key stays on your computer**, in a config file only you can read, and goes only to its own
   provider.
+- **Turbobulls cannot read your data.** The prices, and which assets you price, are saved
+  end-to-end encrypted with the rest of your portfolio.
 - **Reachable from your computer only.** It listens on `127.0.0.1` and answers only
   `https://app.turbobulls.com`; any other website, and any request without the app's address, is
   refused.
@@ -54,7 +62,7 @@ job with nothing to keep running.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png">
-    <img src="docs/images/how-it-works-light.png" width="960" alt="How it works: Turbobulls, open in your browser, asks the Turbobulls Connector app on your computer (127.0.0.1:47821) for a symbol and dates. The Connector asks your data provider, with your API key, which stays on your computer. The provider sends the daily prices back to the Connector, which passes them to Turbobulls, where they are saved encrypted.">
+    <img src="docs/images/how-it-works-light.png" width="960" alt="How it works: Turbobulls, open in your browser, asks the Turbobulls Connector app on your computer (127.0.0.1:47821) for a symbol and dates. The Connector asks your data provider, with your API key, which stays on your computer. The provider sends the daily prices back to the Connector, which passes them to Turbobulls. Turbobulls saves them end-to-end encrypted: its servers never get your API key and cannot read your data.">
   </picture>
 </p>
 
@@ -178,6 +186,19 @@ Environment variables besides the keys: `TURBOBULLS_BRIDGE_CONFIG` (the config f
 alone otherwise).
 
 ## Privacy and security
+
+### Who sees what
+
+| | Your API key | Which assets you price | Your prices and portfolio |
+|---|---|---|---|
+| **Turbobulls' servers** | Never receive it | Cannot see them: stored encrypted | Cannot read them: stored encrypted |
+| **The Connector app** | Keeps it on this computer, and sends it only to your provider | Only the ones Turbobulls asks it to fetch | Passes the prices on; cannot read your portfolio |
+| **Your data provider** | Checks it, as on any call to its API | Each symbol it is asked for | Sends the prices; never sees your portfolio |
+
+The Turbobulls app decrypts your data in your browser, on your device: your portfolio and the
+prices leave it only end-to-end encrypted.
+
+### What the program can do
 
 - **It only reaches** your provider's API (`eodhd.com`, `api.twelvedata.com`,
   `www.alphavantage.co`, `finnhub.io`) and the sources you add yourself, and only when the
