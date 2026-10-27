@@ -262,4 +262,7 @@ report security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) © Turbobulls
+The code is released under the [MIT License](LICENSE) © Turbobulls.
+
+The Turbobulls name and logo are not covered by that license. If you publish a copy of the
+Connector app, give it its own name and icon.
