@@ -115,11 +115,11 @@ export async function dispatch(input: unknown, deps: DispatchDeps): Promise<Conn
         }
         const source = (await customSourcesOf(deps)).find((s) => s.id === provider)
         if (!source) throw new ConnectorError('NOT_CONFIGURED', 'This connector has no source with that id.')
-        const origin = `https://${templateHost(source.url) ?? ''}`
-        if (deps.canReach && !(await deps.canReach(origin))) {
+        const host = templateHost(source.url) ?? ''
+        if (deps.canReach && !(await deps.canReach(`https://${host}`))) {
           throw new ConnectorError(
             'NOT_CONFIGURED',
-            `The connector is not allowed to reach ${source.name} yet. Open its settings and save the source again.`,
+            `The browser has not let the connector reach ${host} for ${source.name}. Open the connector's settings and save the source again.`,
           )
         }
         key = (await deps.getKey(provider))?.trim() || undefined
