@@ -76,6 +76,8 @@ docker run --rm -p 127.0.0.1:47821:47821 --env-file ~/.config/turbobulls-bridge/
 
 - Keep `127.0.0.1:` in front of the port. Without it (or with `-P`), Docker opens the bridge to
   your whole network, past most firewalls, and anyone on it could use your keys.
+- Never run it with `--network host`: the container then shares the computer's network, the port
+  setting no longer applies, and the bridge is open to your whole network the same way.
 - Keep the port 47821: the app only looks there.
 - Do not write a key on the `docker run` command line (`-e EODHD_API_KEY=...`): other users of
   the computer can read command lines, and your shell keeps them in its history.

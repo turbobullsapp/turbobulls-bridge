@@ -16,6 +16,8 @@ const PATHS: Readonly<Record<string, 'hello' | 'search' | 'history'>> = {
   '/v1/history': 'history',
 }
 const PARAM_NAMES = ['provider', 'query', 'symbol', 'from', 'to'] as const
+/** After the first refused request, at most one line this often counts the rest. */
+const REFUSAL_LOG_INTERVAL_MS = 60_000
 
 export interface BridgeServerOptions {
   /** The port the browser connects to; the Host header must name it. */
@@ -46,14 +48,41 @@ function refusal(code: ErrorCode, message: string): ConnectorResponse {
   return { id: '', ok: false, error: { code, message } }
 }
 
-async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeServerOptions): Promise<void> {
+/**
+ * Any web page can make a browser send requests here, so refused ones are not logged one by one: a
+ * page sending thousands would flood the terminal, or fill the disk where the output is kept. The
+ * first is logged as it comes, then one line a minute counts the rest.
+ */
+export function createRefusalLog(logger: Logger | undefined, intervalMs = REFUSAL_LOG_INTERVAL_MS): (line: string) => void {
+  let timer: NodeJS.Timeout | undefined
+  let held = 0
+  const tick = () => {
+    if (held === 0) {
+      timer = undefined
+      return
+    }
+    logger?.info(`Refused ${held} more request${held === 1 ? '' : 's'} from other sites or addresses in the last minute.`)
+    held = 0
+    timer = setTimeout(tick, intervalMs).unref()
+  }
+  return (line) => {
+    if (timer !== undefined) {
+      held++
+      return
+    }
+    logger?.info(line)
+    timer = setTimeout(tick, intervalMs).unref()
+  }
+}
+
+async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeServerOptions, logRefusal: (line: string) => void): Promise<void> {
   const started = Date.now()
   const method = req.method ?? 'GET'
   const url = req.url ?? '/'
   const path = url.split('?')[0] ?? '/'
   // Log the path only: the query holds the symbol, which is the user's business.
-  const done = (status: number, outcome: string) =>
-    opts.logger?.info(`${method} ${path.slice(0, 64)} -> ${status} ${outcome} (${Date.now() - started} ms)`)
+  const line = (status: number, outcome: string) => `${method} ${path.slice(0, 64)} -> ${status} ${outcome} (${Date.now() - started} ms)`
+  const done = (status: number, outcome: string) => opts.logger?.info(line(status, outcome))
 
   res.setHeader('Cache-Control', 'no-store')
   res.setHeader('X-Content-Type-Options', 'nosniff')
@@ -61,12 +90,12 @@ async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeSer
 
   if (!isAllowedHost(req.headers.host, opts.port)) {
     send(res, 403, refusal('BAD_REQUEST', 'The bridge only answers requests sent to 127.0.0.1.'))
-    return done(403, 'host refused')
+    return logRefusal(line(403, 'host refused'))
   }
   const origin = req.headers.origin
   if (typeof origin !== 'string' || !opts.allowedOrigins.includes(origin)) {
     send(res, 403, refusal('BAD_REQUEST', 'The bridge only answers the Turbobulls app.'))
-    return done(403, 'origin refused')
+    return logRefusal(line(403, 'origin refused'))
   }
   res.setHeader('Access-Control-Allow-Origin', origin)
 
@@ -110,8 +139,9 @@ async function handle(req: IncomingMessage, res: ServerResponse, opts: BridgeSer
 }
 
 export function createBridgeServer(opts: BridgeServerOptions): Server {
+  const logRefusal = createRefusalLog(opts.logger)
   return createServer((req, res) => {
-    handle(req, res, opts).catch(() => {
+    handle(req, res, opts, logRefusal).catch(() => {
       if (!res.headersSent) send(res, 500, refusal('PROVIDER_ERROR', 'The bridge could not answer.'))
       else res.end()
     })

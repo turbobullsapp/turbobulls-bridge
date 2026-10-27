@@ -30,7 +30,9 @@ into an issue, even a revoked one.
 - **Turbobulls learns nothing.** The bridge never contacts Turbobulls. The app talks to it on your
   computer, and only sends a provider name, a symbol and dates. It never sends portfolio data. The
   app sees the names you give your own sources, never their addresses or keys.
-- **Its logs hold no symbols.** A log line names the path and the outcome only.
+- **Its logs hold no symbols.** A log line names the path and the outcome only. Requests refused
+  for coming from another site or address are logged once, then counted once a minute, so a web
+  page cannot flood the log.
 
 ## What it cannot protect against
 

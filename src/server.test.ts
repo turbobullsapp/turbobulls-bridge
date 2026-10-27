@@ -1,8 +1,8 @@
 import { request, type Server } from 'node:http'
 import { createServer as createNetServer } from 'node:net'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Logger } from './log.js'
-import { APP_ORIGIN, createBridgeServer, DEV_ORIGIN, isAllowedHost } from './server.js'
+import { APP_ORIGIN, createBridgeServer, createRefusalLog, DEV_ORIGIN, isAllowedHost } from './server.js'
 import { fakeFetch, path, TEST_KEY } from './shared/__fixtures__/fake-fetch.js'
 import { clearEodhdCurrencyCache } from './shared/providers/eodhd.js'
 
@@ -163,5 +163,32 @@ describe('bridge server', () => {
     expect(lines.some((l) => l.includes('origin refused'))).toBe(true)
     expect(lines.join('\n')).not.toContain('AAPL')
     expect(lines.join('\n')).not.toContain(TEST_KEY)
+  })
+
+  it('logs one line for a flood of requests from other sites', async () => {
+    for (let i = 0; i < 30; i++) await send(port, { path: '/v1/hello', headers: { Origin: 'https://evil.example' } })
+    for (let i = 0; i < 30; i++) await send(port, { path: '/v1/hello', headers: { Host: 'evil.example', Origin: APP_ORIGIN } })
+    expect(lines.filter((l) => l.includes('refused'))).toHaveLength(1)
+  })
+})
+
+describe('createRefusalLog', () => {
+  it('logs the first refusal, then counts the rest once a minute', () => {
+    vi.useFakeTimers()
+    try {
+      const seen: string[] = []
+      const log = createRefusalLog({ info: (m) => seen.push(m), warn: () => {}, error: () => {} })
+      for (let i = 0; i < 2000; i++) log('GET /v1/hello -> 403 origin refused (0 ms)')
+      expect(seen).toEqual(['GET /v1/hello -> 403 origin refused (0 ms)'])
+      vi.advanceTimersByTime(60_000)
+      expect(seen[1]).toBe('Refused 1999 more requests from other sites or addresses in the last minute.')
+      // A quiet minute ends the counting: the next refusal is logged as it comes.
+      vi.advanceTimersByTime(60_000)
+      expect(seen).toHaveLength(2)
+      log('GET /v1/hello -> 403 host refused (0 ms)')
+      expect(seen[2]).toBe('GET /v1/hello -> 403 host refused (0 ms)')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

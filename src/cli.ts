@@ -7,6 +7,7 @@ import { consoleLogger, type Logger } from './log.js'
 import { APP_ORIGIN, createBridgeServer, DEFAULT_PORT, DEV_ORIGIN } from './server.js'
 import { usesSymbol } from './shared/custom/definition.js'
 import { dispatch, type DispatchDeps } from './shared/dispatch.js'
+import { createRefusalMemory } from './shared/refusals.js'
 import { addDays, todayUtc } from './shared/protocol/dates.js'
 import { PROVIDER_IDS } from './shared/protocol/types.js'
 import { ADAPTERS } from './shared/providers/registry.js'
@@ -109,6 +110,7 @@ function depsFor(loaded: LoadedKeys): DispatchDeps {
     getKey: (id) => keyFor(loaded, id),
     customSources: () => loaded.customSources,
     fetch: fetchImpl,
+    refusals: createRefusalMemory(),
   }
 }
 
@@ -122,7 +124,7 @@ async function start(opts: CliOptions, log: Logger): Promise<void> {
   if (!['127.0.0.1', 'localhost', '::1'].includes(opts.host)) {
     log.warn(
       `Listening on ${opts.host}. Outside a container this lets other machines use your keys. In a container, ` +
-        `publish the port to this computer only: -p 127.0.0.1:${opts.port}:${opts.port}`,
+        `publish the port to this computer only (-p 127.0.0.1:${opts.port}:${opts.port}), never with -P or --network host.`,
     )
   }
   const server = createBridgeServer({
