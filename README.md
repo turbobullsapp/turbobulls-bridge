@@ -81,7 +81,7 @@ your other devices (your phone included) receive them with the app's normal sync
 | Provider | Key variable | Covers | Notes |
 |---|---|---|---|
 | [EODHD](https://eodhd.com) | `EODHD_API_KEY` | Stocks, ETFs and funds on most exchanges | |
-| [Twelve Data](https://twelvedata.com) | `TWELVEDATA_API_KEY` | Stocks, ETFs, forex and crypto | |
+| [Twelve Data](https://twelvedata.com) | `TWELVEDATA_API_KEY` | Stocks, ETFs, forex and crypto | Showing prices needs a paid plan |
 | [Alpha Vantage](https://www.alphavantage.co) | `ALPHAVANTAGE_API_KEY` | Stocks and ETFs | The free plan allows few requests a day |
 | [Finnhub](https://finnhub.io) | `FINNHUB_API_KEY` | Stocks | Daily prices need a paid plan |
 
