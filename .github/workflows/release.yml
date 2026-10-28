@@ -68,7 +68,8 @@ jobs:
           node-version: 26
           registry-url: https://registry.npmjs.org
       - name: npm can stage a release (11.15.0 or newer)
-        run: node -e 'const [a, b] = process.argv[1].split(".").map(Number); process.exit(a > 11 || (a === 11 && b >= 15) ? 0 : 1)' "$(npm --version)"
+        run: |
+          node -e 'const [a, b] = process.argv[1].split(".").map(Number); process.exit(a > 11 || (a === 11 && b >= 15) ? 0 : 1)' "$(npm --version)"
       # npm only accepts a staged version from this workflow: it goes live once a maintainer approves
       # it on npmjs.com with two-factor sign-in. The package is the build job's, unpacked as it is;
       # no script runs (its prepublishOnly needs the development tools this job does not have).
