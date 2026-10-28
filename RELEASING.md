@@ -23,7 +23,8 @@ Only the latest version gets fixes, security fixes included ([SECURITY.md](SECUR
   A mistake is fixed with a new version, never by moving a tag. Releases are immutable once
   published.
 - **A maintainer approves.** The publishing jobs wait in the `release` environment until a
-  maintainer approves them, and the environment accepts only `v*` tags.
+  maintainer approves them, and the environment accepts only `v*` tags. The npm version waits again,
+  staged, until a maintainer approves it on npmjs.com with two-factor sign-in.
 - **Built by GitHub, never on a computer.** The build job runs the checks and builds the packages
   with no right to publish anything. The publishing jobs run no build tools: they take the build
   job's packages as they are.
@@ -45,9 +46,12 @@ Only the latest version gets fixes, security fixes included ([SECURITY.md](SECUR
 3. **Approve** the run in the `release` environment (Actions tab).
 4. The workflow checks everything again, builds, and publishes the GitHub release with the
    CHANGELOG.md notes for that version.
-5. **Check it arrived.** The workflow publishes the npm package with provenance, the container
-   image `ghcr.io/turbobullsapp/turbobulls-bridge:<version>` (and `latest`) with its attestation, and
-   a GitHub release with the package file and the notes. Update the version in the README's
+5. **Approve it on npm.** The workflow stages the npm package with provenance. On npmjs.com, open
+   the package's staged versions and approve it with two-factor sign-in (or run
+   `npm stage approve <stage-id>`). Until then nothing new is installable from npm.
+6. **Check it arrived:** the npm version, the container image
+   `ghcr.io/turbobullsapp/turbobulls-bridge:<version>` (and `latest`) with its attestation, and the
+   GitHub release with the package file and the notes. Update the version in the README's
    commands in the next pull request if it was not already.
 
 ## Checking a release
@@ -63,7 +67,7 @@ gh attestation verify turbobulls-bridge-1.0.0.tgz --repo turbobullsapp/turbobull
 
 ## Once, before the first release
 
-- The npm name `turbobulls-bridge` belongs to the Turbobulls npm account (two-factor login on).
+- The npm name `turbobulls-bridge` belongs to the Turbobulls npm account (two-factor sign-in on).
 - On npmjs.com the package trusts this repository's `.github/workflows/release.yml`, environment
-  `release` (trusted publishing). No npm token is stored anywhere, and publishing with a token is
-  turned off for the package.
+  `release`, for **staged** publishing only: the workflow can submit a version, never publish one.
+  Publishing needs two-factor sign-in and refuses tokens that skip it.

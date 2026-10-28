@@ -5,7 +5,8 @@ name: Release
 # The build job runs every development tool (TypeScript, ESLint, Vitest) and holds no publishing
 # rights at all. The publishing jobs run none of those tools: they take the built package from the
 # build job and publish it. Every publishing job waits in the "release" environment, which needs a
-# maintainer's approval, and npm publishing uses trusted publishing (no long-lived token).
+# maintainer's approval. npm uses trusted publishing (no long-lived token) and only takes a staged
+# version, which a maintainer approves again on npmjs.com with two-factor sign-in.
 on:
   push:
     tags: ['v*']
@@ -64,9 +65,21 @@ jobs:
           path: release
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
           registry-url: https://registry.npmjs.org
-      - run: npm publish ./release/turbobulls-bridge-*.tgz --provenance --access public --ignore-scripts
+      - name: npm can stage a release (11.15.0 or newer)
+        run: node -e 'const [a, b] = process.argv[1].split(".").map(Number); process.exit(a > 11 || (a === 11 && b >= 15) ? 0 : 1)' "$(npm --version)"
+      # npm only accepts a staged version from this workflow: it goes live once a maintainer approves
+      # it on npmjs.com with two-factor sign-in. The package is the build job's, unpacked as it is;
+      # no script runs (its prepublishOnly needs the development tools this job does not have).
+      - name: Stage the package for a maintainer's approval
+        env:
+          npm_config_ignore_scripts: 'true'
+        run: |
+          mkdir staged
+          tar -xzf release/turbobulls-bridge-*.tgz -C staged
+          cd staged/package
+          npm stage publish --provenance --access public
 
   image:
     needs: build
