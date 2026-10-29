@@ -6,6 +6,8 @@ All notable changes are written down here. The format follows
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-29
+
 ### Added
 
 - Each GitHub release carries the package's signed build record as a file,
@@ -36,6 +38,7 @@ The first public release. It speaks version 1 of the protocol in [PROTOCOL.md](P
 - Listens on `127.0.0.1:47821` only and answers only `https://app.turbobulls.com`.
 - No runtime dependencies; also a container image for `linux/amd64` and `linux/arm64`.
 
-[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/turbobullsapp/turbobulls-bridge/releases/tag/v1.0.0
