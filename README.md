@@ -96,7 +96,7 @@ of each one is under your own plan and its terms.
 1. **Create the config file** for your keys. It is made readable only by you:
 
    ```bash
-   npx turbobulls-bridge@1.0.0 init
+   npx turbobulls-bridge@1.0.1 init
    ```
 
 2. **Add your key.** Open the file it names (`~/.config/turbobulls-bridge/config.json` on macOS and
@@ -110,12 +110,12 @@ of each one is under your own plan and its terms.
 3. **Check it and start it.** Leave it running while you use Turbobulls:
 
    ```bash
-   npx turbobulls-bridge@1.0.0 test
-   npx turbobulls-bridge@1.0.0
+   npx turbobulls-bridge@1.0.1 test
+   npx turbobulls-bridge@1.0.1
    ```
 
 > [!TIP]
-> Always name the version (`@1.0.0`), so `npx` runs exactly the release you chose. Keys can also be
+> Always name the version (`@1.0.1`), so `npx` runs exactly the release you chose. Keys can also be
 > environment variables (`EODHD_API_KEY` and the others above); a variable wins over the file.
 > Restart the Connector app after editing the file.
 
@@ -128,7 +128,7 @@ chmod 600 ~/.config/turbobulls-bridge/bridge.env
 docker run --rm \
   -p 127.0.0.1:47821:47821 \
   --env-file ~/.config/turbobulls-bridge/bridge.env \
-  ghcr.io/turbobullsapp/turbobulls-bridge:1.0.0
+  ghcr.io/turbobullsapp/turbobulls-bridge:1.0.1
 ```
 
 > [!WARNING]
@@ -179,7 +179,7 @@ Every setting, the answer shapes it reads and the rules it keeps are in
 
 ## Commands
 
-With `npx`, write `npx turbobulls-bridge@1.0.0` where these say `turbobulls-bridge`.
+With `npx`, write `npx turbobulls-bridge@1.0.1` where these say `turbobulls-bridge`.
 
 | Command | What it does |
 |---|---|

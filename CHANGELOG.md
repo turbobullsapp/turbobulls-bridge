@@ -6,6 +6,12 @@ All notable changes are written down here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-29
+
+### Changed
+
+- The README's providers table says that showing Twelve Data's prices needs a paid plan.
+
 ## [1.0.0] - 2026-10-27
 
 The first public release. It speaks version 1 of the protocol in [PROTOCOL.md](PROTOCOL.md).
@@ -21,5 +27,6 @@ The first public release. It speaks version 1 of the protocol in [PROTOCOL.md](P
 - Listens on `127.0.0.1:47821` only and answers only `https://app.turbobulls.com`.
 - No runtime dependencies; also a container image for `linux/amd64` and `linux/arm64`.
 
-[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/turbobullsapp/turbobulls-bridge/releases/tag/v1.0.0
