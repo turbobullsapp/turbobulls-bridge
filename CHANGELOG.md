@@ -6,6 +6,15 @@ All notable changes are written down here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Each GitHub release carries the package's signed build record as a file,
+  `turbobulls-bridge-<version>.tgz.sigstore.json`, to check a download against.
+
+### Changed
+
+- The container image is made from the npm package itself, so the two hold exactly the same code.
+
 ## [1.0.1] - 2026-10-29
 
 ### Changed

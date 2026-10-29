@@ -95,6 +95,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # The image is made from the build job's package, so it holds exactly what npm gets.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: release
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
@@ -112,7 +117,8 @@ jobs:
       - id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
-          context: .
+          context: release
+          file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: true
@@ -137,10 +143,17 @@ jobs:
         with:
           name: release
           path: release
-      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+      - id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: release/*.tgz
+      # The signed record also ships as a file next to the package, so a download can be checked
+      # against it (RELEASING.md, "Checking a release").
+      - name: Keep the signed record next to the package
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: for f in release/*.tgz; do cp "$BUNDLE" "$f.sigstore.json"; done
       - name: Publish the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/*.tgz --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes-file release/notes.md --verify-tag
+        run: gh release create "$GITHUB_REF_NAME" release/*.tgz release/*.sigstore.json --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes-file release/notes.md --verify-tag
