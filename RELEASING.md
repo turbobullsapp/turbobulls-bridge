@@ -43,7 +43,8 @@ Only the latest version gets fixes, security fixes included ([SECURITY.md](SECUR
    git tag v1.2.3 && git push origin v1.2.3
    ```
 
-3. **Approve** the run in the `release` environment (Actions tab).
+3. **Approve** the run in the `release` environment (Actions tab): once for the npm package and
+   the container image, and again when the GitHub release job reaches it.
 4. The workflow checks everything again, builds, and publishes the GitHub release with the
    CHANGELOG.md notes for that version.
 5. **Approve it on npm.** The workflow stages the npm package with provenance. On npmjs.com, open
@@ -51,18 +52,26 @@ Only the latest version gets fixes, security fixes included ([SECURITY.md](SECUR
    `npm stage approve <stage-id>`). Until then nothing new is installable from npm.
 6. **Check it arrived:** the npm version, the container image
    `ghcr.io/turbobullsapp/turbobulls-bridge:<version>` (and `latest`) with its attestation, and the
-   GitHub release with the package file and the notes. Update the version in the README's
+   GitHub release with the package file, its `.sigstore.json` record and the notes. Update the version in the README's
    commands in the next pull request if it was not already.
 
 ## Checking a release
 
 The npm package is published with provenance: npmjs.com shows the workflow run and commit it was
 built from, and `npm audit signatures` checks it in a project that installs it. The container image
-and the package file carry GitHub attestations:
+is made from that same package, and both carry GitHub attestations:
 
 ```bash
 gh attestation verify oci://ghcr.io/turbobullsapp/turbobulls-bridge:1.0.0 --repo turbobullsapp/turbobulls-bridge
 gh attestation verify turbobulls-bridge-1.0.0.tgz --repo turbobullsapp/turbobulls-bridge
+```
+
+From 1.0.2 on, each GitHub release also carries the package's signed record as a file,
+`turbobulls-bridge-<version>.tgz.sigstore.json`, so a download can be checked against it without
+looking the record up on GitHub:
+
+```bash
+gh attestation verify turbobulls-bridge-1.0.2.tgz --bundle turbobulls-bridge-1.0.2.tgz.sigstore.json --repo turbobullsapp/turbobulls-bridge
 ```
 
 ## Once, before the first release

@@ -62,5 +62,6 @@ Keep your computer and Node.js up to date.
 ## Releases
 
 Releases are built by GitHub Actions from tagged commits of `main`, after a maintainer approves
-them, and the npm package and the container image carry a signed record of where they were built.
+them. The container image is made from the npm package, and both carry a signed record of where
+they were built; each GitHub release also has that record as a file next to the package.
 [RELEASING.md](RELEASING.md) has the rules and the commands to check a release yourself.
