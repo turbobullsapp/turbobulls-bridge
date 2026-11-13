@@ -1,7 +1,8 @@
 # Your own sources
 
 Prices that none of the built-in providers carry (a pension fund's daily price, a small exchange, a
-spreadsheet you publish yourself) can come from any `https://` address that answers JSON or CSV.
+spreadsheet you publish yourself) can come from any `https://` address that answers JSON or CSV,
+or from a file served on your own computer.
 The Connector app reads them from the `sources` list in its config file; the
 [Turbobulls Connector extension](https://github.com/turbobullsapp/turbobulls-extension) keeps the
 same settings on its settings page.
@@ -49,7 +50,7 @@ read, or why nothing matched.
 |---|---|
 | `id` | 2 to 32 lower-case letters and digits, starting with a letter |
 | `name` | What the app shows, up to 40 characters |
-| `url` | An `https://` address. Placeholders: `{SYMBOL}`, `{FROM}` and `{TO}` (YYYY-MM-DD), `{FROM_UNIX}` and `{TO_UNIX}` (seconds), `{KEY}`. None may sit in the host name. |
+| `url` | An `https://` address, or `http://localhost` or `http://127.0.0.1` (any port) for one on your own computer. Placeholders: `{SYMBOL}`, `{FROM}` and `{TO}` (YYYY-MM-DD), `{FROM_UNIX}` and `{TO_UNIX}` (seconds), `{KEY}`. None may sit in the host name. |
 | `format` | `json` or `csv` |
 | `json` | `items`: dot path to the list (empty for the whole answer); `date`: dot path to the date in each item (leave it out when the list is an object keyed by date); `close`: dot path to the price |
 | `csv` | `date` and `close`: column names from the header row, or column numbers from 1; `delimiter`: `,` (default), `;` or a tab |
@@ -71,6 +72,26 @@ A JSON answer can hold:
   pointing at them.
 
 A CSV answer needs a header row, or column numbers in `csv.date` and `csv.close`.
+
+## Prices kept on your computer
+
+For prices you keep yourself, such as a fund priced from monthly statements, the address can be on
+your own computer: `http://localhost` or `http://127.0.0.1`, on any port. Plain `http://` is
+accepted only for these two, since such a request never leaves the computer. Every other address
+needs `https://`, a machine elsewhere on your network included.
+
+Any small web server can serve the file. For example, in the folder that holds `pension.csv`:
+
+```sh
+python3 -m http.server 8090 --bind 127.0.0.1
+```
+
+Then the source's `url` is `http://localhost:8090/{SYMBOL}.csv`, and its symbol is `pension`. The
+server has to be running when Turbobulls asks for prices.
+
+In the Docker image, `localhost` is the container itself, not your computer, so a server on your
+computer is out of its reach. Run the Connector app with `npx turbobulls-bridge` for a source like
+this.
 
 ## Rules
 

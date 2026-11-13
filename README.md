@@ -157,7 +157,8 @@ your computer, so the Connector app does not work there.
 
 For prices none of the four providers carry (a pension fund's daily price, a small exchange, a
 spreadsheet you publish yourself), add a source to the `sources` list in the config file: any
-`https://` address that answers JSON or CSV, with placeholders for the symbol and the dates.
+`https://` address that answers JSON or CSV, or one on your own computer (`http://localhost` or
+`http://127.0.0.1`), with placeholders for the symbol and the dates.
 
 ```json
 {
