@@ -89,6 +89,9 @@ python3 -m http.server 8090 --bind 127.0.0.1
 Then the source's `url` is `http://localhost:8090/{SYMBOL}.csv`, and its symbol is `pension`. The
 server has to be running when Turbobulls asks for prices.
 
+Serve a folder that holds only your price files, and keep `--bind 127.0.0.1`: without it, anyone on
+the same network, such as a cafe's Wi-Fi, can open that folder.
+
 In the Docker image, `localhost` is the container itself, not your computer, so a server on your
 computer is out of its reach. Run the Connector app with `npx turbobulls-bridge` for a source like
 this.
