@@ -6,6 +6,15 @@ All notable changes are written down here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-14
+
+### Added
+
+- A source of your own can read a file served on your own computer: its address may start with
+  `http://localhost` or `http://127.0.0.1`, on any port. Every other address still needs
+  `https://`. In the Docker image, `localhost` is the container itself, so run the Connector app
+  with `npx` for such a source.
+
 ## [1.0.2] - 2026-10-29
 
 ### Added
@@ -38,7 +47,8 @@ The first public release. It speaks version 1 of the protocol in [PROTOCOL.md](P
 - Listens on `127.0.0.1:47821` only and answers only `https://app.turbobulls.com`.
 - No runtime dependencies; also a container image for `linux/amd64` and `linux/arm64`.
 
-[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/turbobullsapp/turbobulls-bridge/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/turbobullsapp/turbobulls-bridge/releases/tag/v1.0.0
