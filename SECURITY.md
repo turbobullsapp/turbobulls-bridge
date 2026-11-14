@@ -31,7 +31,8 @@ found in an older version.
   encoded and can never change the host or climb out of the address's path. Redirects are never
   followed, so a request, and any key or header in it, cannot be carried to another host. The
   bridge stops reading any answer past a size limit and refuses answers with too many rows. No
-  request ever sends cookies.
+  request ever sends cookies. A source must use `https://`, except one on this computer
+  (`localhost` or `127.0.0.1`), whose requests never leave it.
 - **Your keys stay on your computer.** They come from environment variables or a config file the
   bridge creates readable only by you, and warns about if others can read it. A key is sent only
   to the provider it belongs to, as a header where the provider accepts one (EODHD, Twelve Data,
