@@ -2,7 +2,7 @@
 # or compiled here, and the Connector app has no dependencies at runtime. To build it yourself,
 # make the package first (`pnpm build && npm pack`), then run `docker build .` next to it.
 # The base image is pinned by digest; Dependabot proposes updates.
-FROM node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
 # ADD unpacks the package into /app/package.
 ADD turbobulls-bridge-*.tgz /app/
 WORKDIR /app/package
